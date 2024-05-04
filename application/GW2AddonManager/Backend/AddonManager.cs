@@ -21,7 +21,6 @@ namespace GW2AddonManager
 
     public class AddonManager : UpdateChangedEvents, IAddonManager
     {
-        private const string AddonPrefix = "gw2addon_";
         private const string ArcDPSFolder = "arcdps";
         private const string DisabledExtension = ".dll_disabled";
         private const string EnabledExtension = ".dll";
@@ -52,7 +51,7 @@ namespace GW2AddonManager
             var folderPath = FolderPath(addon);
             var extension = state.Disabled ? DisabledExtension : EnabledExtension;
             if(addon.InstallMode == InstallMode.Binary)
-                return _fileSystem.Path.Combine(folderPath, AddonPrefix + addon.Nickname + extension);
+                return _fileSystem.Path.Combine(folderPath, addon.Nickname + extension);
             else if(addon.InstallMode == InstallMode.ArcDPSAddon) {
                 if(addon.PluginName != null)
                     return _fileSystem.Path.Combine(folderPath, addon.PluginName + extension);

@@ -12,6 +12,19 @@ using System.Windows.Data;
 
 namespace GW2AddonManager
 {
+    struct SemanticVersion
+    {
+        public string Name;
+        public uint MajorVersion;
+        public uint MinorVersion;
+        public uint PatchVersion;
+
+        public override string ToString()
+        {
+            return $"{MajorVersion}.{MinorVersion}.{PatchVersion}";
+        }
+    }
+
     public delegate void UpdateMessageChangedEventHandler(object sender, string message);
     public delegate void UpdateProgressChangedEventHandler(object sender, int pct);
 

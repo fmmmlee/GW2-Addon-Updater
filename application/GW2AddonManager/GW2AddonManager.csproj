@@ -14,6 +14,7 @@
     <PackageIconUrl />
     <PackageProjectUrl>https://github.com/gw2-addon-loader/GW2-Addon-Manager</PackageProjectUrl>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

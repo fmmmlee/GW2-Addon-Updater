@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29201.188
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Updater", "Updater\Updater.csproj", "{2A0B5916-4069-43F0-8067-8C4203539CB1}"
 EndProject
@@ -10,18 +10,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\UnitTests.csproj", "{7F7C2508-E29D-4E54-85A5-7F7F44F4D0EE}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common", "Common\Common.shproj", "{72EAAADA-1756-4077-B0CB-04CD6A9B670E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GW2AddonManager", "GW2AddonManager\GW2AddonManager.csproj", "{D7F79E80-7E0F-4870-A77E-A992711744C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GW2AddonManager", "GW2AddonManager\GW2AddonManager.csproj", "{D7F79E80-7E0F-4870-A77E-A992711744C5}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Common\Common.projitems*{2a0b5916-4069-43f0-8067-8c4203539cb1}*SharedItemsImports = 5
-		Common\Common.projitems*{72eaaada-1756-4077-b0cb-04cd6a9b670e}*SharedItemsImports = 13
-		Common\Common.projitems*{d7f79e80-7e0f-4870-a77e-a992711744c5}*SharedItemsImports = 5
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -31,10 +24,6 @@ Global
 		{2A0B5916-4069-43F0-8067-8C4203539CB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A0B5916-4069-43F0-8067-8C4203539CB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A0B5916-4069-43F0-8067-8C4203539CB1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7F7C2508-E29D-4E54-85A5-7F7F44F4D0EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7F7C2508-E29D-4E54-85A5-7F7F44F4D0EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7F7C2508-E29D-4E54-85A5-7F7F44F4D0EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7F7C2508-E29D-4E54-85A5-7F7F44F4D0EE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D7F79E80-7E0F-4870-A77E-A992711744C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D7F79E80-7E0F-4870-A77E-A992711744C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7F79E80-7E0F-4870-A77E-A992711744C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,5 +34,10 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AB357776-6D4C-4C07-9D41-71B16DFDA52F}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Common\Common.projitems*{2a0b5916-4069-43f0-8067-8c4203539cb1}*SharedItemsImports = 5
+		Common\Common.projitems*{72eaaada-1756-4077-b0cb-04cd6a9b670e}*SharedItemsImports = 13
+		Common\Common.projitems*{d7f79e80-7e0f-4870-a77e-a992711744c5}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

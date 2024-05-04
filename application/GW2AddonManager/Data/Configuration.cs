@@ -6,13 +6,10 @@ namespace GW2AddonManager
 {
     [Serializable]
     public record Configuration(
-        string LoaderVersion,
         bool LaunchGame,
         string Culture,
-        string GamePath,
-        IReadOnlyList<string> LoaderInstalledFiles,
-        IReadOnlyDictionary<string, AddonState> AddonsState)
+        string GamePath)
     {
-        public static Configuration Default => new Configuration(null, false, CultureConstants.English, null, new List<string>(), new Dictionary<string, AddonState>());
+        public static Configuration Default => new Configuration(false, CultureConstants.English, null);
     }
 }
