@@ -55,7 +55,7 @@ namespace GW2AddonManager
             delegate IntPtr GW2Load_GetLoaderVersion();
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-            delegate IntPtr GW2Load_GetAddonsInDirectory([MarshalAs(UnmanagedType.LPStr)] string directory, ref uint count);
+            delegate IntPtr GW2Load_GetAddonsInDirectory([MarshalAs(UnmanagedType.LPStr)] string directory, ref uint count, [MarshalAs(UnmanagedType.Bool)] bool allowDisabled);
 
 
             IntPtr _library;
@@ -96,32 +96,30 @@ namespace GW2AddonManager
                 var ver = Marshal.PtrToStructure<GW2Load_LoaderVersion>(_getLoaderVersion());
                 return new SemanticVersion
                 {
-                    Name = "GW2Load",
                     MajorVersion = ver.majorAddonVersion,
                     MinorVersion = ver.minorAddonVersion,
                     PatchVersion = ver.patchAddonVersion
                 };
             }
 
-            public IList<(string Path, SemanticVersion Desc)> GetAddonsInDirectory(string directory)
+            public IList<AddonState> GetAddonsInDirectory(string directory)
             {
                 uint count = 0;
-                var unmanagedArray = _getAddonsInDirectory(directory, ref count);
-                var list = new List<(string Path, SemanticVersion Desc)>();
+                var unmanagedArray = _getAddonsInDirectory(directory, ref count, true);
+                var list = new List<AddonState>();
                 list.Capacity = (int)count;
 
-                for(uint i = 0; i < count; ++i)
+                for (uint i = 0; i < count; ++i)
                 {
                     var enumeratedAddon = Marshal.PtrToStructure<GW2Load_EnumeratedAddon>(
                         new IntPtr(unmanagedArray.ToInt64() + i * Marshal.SizeOf<GW2Load_EnumeratedAddon>()));
 
-                    list.Add((enumeratedAddon.path, new SemanticVersion
+                    list.Add(new AddonState(enumeratedAddon.path, enumeratedAddon.description.name, new SemanticVersion
                     {
-                        Name = enumeratedAddon.description.name,
                         MajorVersion = enumeratedAddon.description.majorAddonVersion,
                         MinorVersion = enumeratedAddon.description.minorAddonVersion,
                         PatchVersion = enumeratedAddon.description.patchAddonVersion
-                    }));
+                    }, enumeratedAddon.path.EndsWith(".dll.disabled")));
                 }
 
                 return list;
@@ -182,7 +180,7 @@ namespace GW2AddonManager
         private async Task<LoaderDLL?> GetLoaderDLL()
         {
             var dll = LoaderDLL.FromPath(_fileSystem, LocalLoaderPath);
-            if(dll == null)
+            if (dll == null)
             {
                 await Update();
                 dll = LoaderDLL.FromPath(_fileSystem, LocalLoaderPath);
@@ -202,6 +200,21 @@ namespace GW2AddonManager
                 else
                 {
                     _loaderVersion = dll.GetLoaderVersion();
+                }
+            }
+        }
+
+        public async Task<IList<AddonState>> GetAddonsInDirectory(string directory)
+        {
+            using (var dll = await GetLoaderDLL())
+            {
+                if (dll == null)
+                {
+                    throw new FileNotFoundException("Could not find addon loader!");
+                }
+                else
+                {
+                    return dll.GetAddonsInDirectory(directory);
                 }
             }
         }

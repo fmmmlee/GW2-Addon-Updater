@@ -16,13 +16,13 @@ namespace GW2AddonManager
         Task Enable(IEnumerable<AddonInfo> addons);
         Task Install(IEnumerable<AddonInfo> addons);
 
-        string AddonsFolder { get; }
+        string AddonsPath { get; }
     }
 
     public class AddonManager : UpdateChangedEvents, IAddonManager
     {
         private const string ArcDPSFolder = "arcdps";
-        private const string DisabledExtension = ".dll_disabled";
+        private const string DisabledExtension = ".dll.disabled";
         private const string EnabledExtension = ".dll";
 
         private readonly IConfigurationProvider _configurationProvider;
@@ -30,7 +30,7 @@ namespace GW2AddonManager
         private readonly IHttpClientProvider _httpClientProvider;
         private readonly ICoreManager _coreManager;
         
-        public string AddonsFolder => _fileSystem.Path.Combine(_configurationProvider.UserConfig.GamePath, "addons");
+        public string AddonsPath => _fileSystem.Path.Combine(_configurationProvider.UserConfig.GamePath, "addons");
 
         public AddonManager(IConfigurationProvider configurationProvider, IFileSystem fileSystem, IHttpClientProvider httpClientProvider, ICoreManager coreManager)
         {
@@ -41,14 +41,14 @@ namespace GW2AddonManager
             coreManager.Uninstalling += (_, _) => Uninstall();
         }
 
-        private string FolderPath(AddonInfo addon)
+        private string GetAddonInstallPath(AddonInfo addon)
         {
-            return _fileSystem.Path.Combine(AddonsFolder, addon.InstallMode == InstallMode.Binary ? addon.Nickname : ArcDPSFolder);
+            return _fileSystem.Path.Combine(AddonsPath, addon.InstallMode == InstallMode.Binary ? addon.Nickname : ArcDPSFolder);
         }
 
-        private string DLLPath(AddonInfo addon, AddonState state)
+        private string? GetAddonBinaryPath(AddonInfo addon, AddonState state)
         {
-            var folderPath = FolderPath(addon);
+            var folderPath = GetAddonInstallPath(addon);
             var extension = state.Disabled ? DisabledExtension : EnabledExtension;
             if(addon.InstallMode == InstallMode.Binary)
                 return _fileSystem.Path.Combine(folderPath, addon.Nickname + extension);
@@ -64,19 +64,19 @@ namespace GW2AddonManager
                 }
             }
             else
-                throw new ArgumentException();
+                return null;
         }
 
         private void DisableEnable(AddonInfo addon, Dictionary<string, AddonState> states, bool enable)
         {
             var state = states[addon.Nickname];
-            if (!state.Installed || state.Disabled == !enable)
+            if (state.Disabled == !enable)
             {
                 _coreManager.AddLog($"Skipping {addon.AddonName}, not installed or already in desired state.");
                 return;
             }
 
-            var path = DLLPath(addon, state);
+            var path = GetAddonBinaryPath(addon, state);
             if(_fileSystem.File.Exists(path)) {
                 var newPath = _fileSystem.Path.ChangeExtension(path, enable ? EnabledExtension : DisabledExtension);
                 _fileSystem.File.Move(path, newPath);
@@ -98,25 +98,20 @@ namespace GW2AddonManager
         private void Delete(AddonInfo addon, Dictionary<string, AddonState> states)
         {
             var state = states[addon.Nickname];
-            if(!state.Installed)
-            {
-                _coreManager.AddLog($"Skipping {addon.AddonName}, not installed.");
-                return;
-            }
 
             _coreManager.AddLog($"Deleting {addon.AddonName}...");
 
-            var folderPath = FolderPath(addon);
+            var folderPath = GetAddonInstallPath(addon);
 
             if(_fileSystem.Directory.Exists(folderPath))
             {
+                var dllPath = GetAddonBinaryPath(addon, state) ?? throw new ArgumentException($"Could not determine install path for {addon.AddonName}!");
+
                 var files = new List<string>
                 {
-                    DLLPath(addon, state)
+                    dllPath
                 };
                 foreach (var f in addon.Files)
-                    files.Add(_fileSystem.Path.Combine(folderPath, f));
-                foreach (var f in state.InstalledFiles)
                     files.Add(_fileSystem.Path.Combine(folderPath, f));
 
                 foreach (var f in files) {
@@ -126,18 +121,10 @@ namespace GW2AddonManager
                         _fileSystem.File.Delete(f);
                     }
                 }
-
-                foreach(var dir in _fileSystem.Directory.EnumerateDirectories(folderPath, "*", SearchOption.AllDirectories).OrderByDescending(x => x.Length).Append(folderPath))
-                {
-                    _coreManager.AddLog($"Deleting directory '{dir}'...");
-                    try {
-                        _fileSystem.Directory.Delete(dir);
-                    } catch(Exception) { }
-                }
             } else
                 _coreManager.AddLog($"Directory '{folderPath}' does not exist, addon does not appear to be installed?");
 
-            states[addon.Nickname] = AddonState.Default(state.Nickname);
+            _ = states.Remove(addon.Nickname);
 
             _coreManager.AddLog($"Deleted {addon.AddonName}.");
         }

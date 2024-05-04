@@ -12,9 +12,8 @@ using System.Windows.Data;
 
 namespace GW2AddonManager
 {
-    struct SemanticVersion
+    public struct SemanticVersion
     {
-        public string Name;
         public uint MajorVersion;
         public uint MinorVersion;
         public uint PatchVersion;
